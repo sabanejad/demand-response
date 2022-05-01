@@ -1,6 +1,16 @@
 import numpy as np
 import pandas as pd
 
+def find_counterfactual(a1, b1, a2, b2):
+    a1_inv = np.linalg.pinv(a1)
+    x = a1_inv @ b1.to_numpy()
+    b2_est_ = a2.to_numpy() @ x
+    b2_est = pd.DataFrame(b2_est_, columns=b2.columns, index=b2.index)
+    return b2_est
+
+def get_dem(df, dem):
+    return df.loc[df['house_id'].isin(dem)]
+
 def household_mean_daily_consumption(df):
     df = df.groupby([df['date_time'].dt.normalize(), df['house_id']]).sum().rename(columns={'KWH/hh': 'KWH/D'})
     df['treated'] = df['treated'].astype('bool')
@@ -75,7 +85,7 @@ def get_matrices_imputed(t1, c1, t2, c2):
 
     return a1, b1, a2, b2
 
-def get_matrices_dropped(t1, c1, t2, c2, x=0):
+def get_matrices_dropped(t1, c1, t2, c2, x):
 
     a1, b1, a2, b2 = get_alpha_beta(t1, c1, t2, c2)
     print('before anything', a1.shape, b1.shape, a2.shape, b2.shape)
@@ -91,6 +101,9 @@ def get_matrices_dropped(t1, c1, t2, c2, x=0):
 
     return a1, b1, a2, b2
 
+def get_percentage_time_missing(matrix):
+    return round(matrix.isna().sum(axis=1) / matrix.shape[1] * 100, 2)
+    
 # clean the data, remove houses that have more than x% of their hh data missing
 # assuming hh index and house_id columns
 def clean_house(mat, x):
