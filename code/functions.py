@@ -8,8 +8,12 @@ def find_counterfactual(a1, b1, a2, b2):
     b2_est = pd.DataFrame(b2_est_, columns=b2.columns, index=b2.index)
     return b2_est
 
-def get_dem(df, dem):
+def get_dem_df(df, dem):
     return df.loc[df['house_id'].isin(dem)]
+
+def get_dem_mat(mat, dem):
+    # return mat.iloc[mat.column.isin(dem), :]
+    return mat.iloc[:, mat.columns.isin(dem)]
 
 def household_mean_daily_consumption(df):
     df = df.groupby([df['date_time'].dt.normalize(), df['house_id']]).sum().rename(columns={'KWH/hh': 'KWH/D'})
