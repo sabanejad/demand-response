@@ -28,13 +28,17 @@ def rmse(y_true, y_pred):
     return np.sqrt(np.nanmean(np.square(y_true - y_pred)))
 
 def mpe(y_true, y_pred):
-    return np.nanstd((y_true - y_pred) / y_true)
+    return np.nanmean((y_true - y_pred) / y_true)
 
 def me(y_true, y_pred):
-    return np.nanstd(y_true - y_pred)
+    return np.nanmean(y_true - y_pred)
 
 def return_me_mpe(df, s_true, s_pred):
     return me(df[s_true, True], df[s_pred, True]), mpe(df[s_true, True], df[s_pred, True])
+
+def return_pvals(df, s_true, s_pred):
+    from scipy import stats
+    return 's', round(stats.ttest_rel(df[s_true, True], df[s_pred, True], alternative='less'), 1)
 
 # returns annual consumption by the treatment group and control group, respectively
 def annual_consumption(df):
